@@ -15,7 +15,9 @@ var globby = require('globby')
 var etcdjs = require('etcdjs')
 var fs = require('fs')
 var path = require('path')
+var flatten = require('etcd-flatten')
 var resolve = require('cli-path-resolve')
+var mkdirp = require('mkdirp')
 
 function checkArg(name){
   if(!args[name]){
@@ -62,7 +64,43 @@ function push(){
 }
 
 function pull(){
+	etcd.get(key, {
+		recursive:true
+	}, function(err, result){
+		if(err){
+			console.error(err)
+			process.exit(1)
+		}
+		result = flatten(result.node)
 
+		var files = Object.keys(result || {}).map(function(filekey){
+			return {
+				path:filekey.substr(key.length),
+				content:result[filekey]
+			}
+		})
+
+		var fileCount = 0
+
+		async.forEachSeries(files, function(file, nextFile){
+
+			var filepath = path.join(folderpath, file.path)
+			mkdirp(path.dirname(filepath), function(err){
+				if(err) return nextFile(err)
+				console.log('push: ' + file.path)
+				fileCount++
+				fs.writeFile(filepath, file.content, 'utf8', nextFile)
+			})
+
+		}, function(err){
+			if(err){
+				console.error(err)
+				process.exit(1)
+			}
+			console.log('done: ' + fileCount + ' files pulled from ' + args.etcd)
+		})
+
+	})
 }
 
 var commands = {
