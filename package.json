@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "etcd-flatten": "0.0.2",
-    "etcdjs": "^1.1.1"
+    "etcdjs": "^1.1.1",
+    "wrench": "^1.5.8"
   }
 }

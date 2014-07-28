@@ -3,10 +3,14 @@ var etcdjs = require('etcdjs')
 var flatten = require('etcd-flatten')
 var cp = require('child_process')
 var path = require('path')
+var wrench = require('wrench')
+var async = require('async')
+var fs = require('fs')
 
 var etcdAddress = process.env.ETCD_ADDRESS || '127.0.0.1:4001'
 
 var etcd = etcdjs(etcdAddress)
+var script = path.join(__dirname, 'index.js')
 
 function resetEtcd(t, done){
 	etcd.del('/test', {
@@ -41,7 +45,7 @@ tape('check the etcd connection', function(t){
 tape('push the local files', function(t){
 
 	resetEtcd(t, function(){
-		var script = path.join(__dirname, 'index.js')
+		
 		var data = path.join(__dirname, 'test')
 
 		cp.exec('node ' + script + ' push --folder ' + data + ' --key /test --etcd ' + etcdAddress, function(err, stdout, stderr){
@@ -70,5 +74,47 @@ tape('push the local files', function(t){
 			
 		})
 	})
+
+})
+
+
+tape('pull keys to files', function(t){
+
+	var outputfolder = path.join(__dirname, '/testoutput')
+	wrench.rmdirSyncRecursive(outputfolder, true)
+	wrench.mkdirSyncRecursive(outputfolder)
+
+	async.series([
+		function(next){
+			resetEtcd(t, next)
+		},
+		function(next){
+			etcd.set('/test/config/config.json', '{"a":10}', next)
+		},
+		function(next){
+			etcd.set('/test/data/tag.txt', 'hello', next)
+		},
+		function(next){
+			setTimeout(next, 100)
+		},
+		function(next){
+			cp.exec('node ' + script + ' pull --folder ' + outputfolder + ' --key /test --etcd ' + etcdAddress, function(err, stdout, stderr){
+				if(err || stderr){
+					t.fail(err || stderr.toString(), 'push')
+					t.end()
+					return
+				}
+
+				console.log(stdout.toString())
+
+				t.ok(fs.existsSync(path.join(__dirname, 'testoutput', 'config', 'config.json')), 'config exists')
+				t.ok(fs.existsSync(path.join(__dirname, 'testoutput', 'data', 'tag.txt')), 'tag exists')
+
+				wrench.rmdirSyncRecursive(outputfolder, true)
+				
+				t.end()
+			})
+		}
+	])
 
 })
