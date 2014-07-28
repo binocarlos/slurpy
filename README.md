@@ -34,10 +34,30 @@ To pull those files from another etcd:
 $ slurpy pull --key /myconfigs --folder /home/myconfigs --etcd 127.0.0.1:4001
 ```
 
-To continously pull updates:
+## docker
+
+To run as a docker container - you must mount the folder as a volume.
+
+You must pass a routable address for etcd from within the docker container.
+
+To push:
 
 ```bash
-$ slurpy pull --key /myconfigs --folder /home/myconfigs --etcd 127.0.0.1:4001 --wait
+$ docker run --rm -v /home/myconfigs:/myfiles binocarlos/slurpy push --folder /myfiles --key /myfiles --etcd 192.168.8.120:4001
+```
+
+To pull:
+
+```bash
+$ docker run --rm -v /home/myconfigs:/myfiles binocarlos/slurpy pull --folder /myfiles --key /myfiles --etcd 192.168.8.120:4001
+```
+
+## globs
+
+when pushing - you can provide a `--glob` argument which will filter the local files:
+
+```bash
+$ slurpy push --folder /home/myconfigs --key /myconfigs --glob *.txt
 ```
 
 ## api
@@ -50,7 +70,7 @@ options:
 
   --folder - the local folder
   --key - the etcd key
-  --filter - a file glob to match local files being pushed
+  --glob - a file glob to match local files being pushed
   --etcd - the address of an etcd cluster
 ```
 
