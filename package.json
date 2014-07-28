@@ -27,6 +27,7 @@
     "tape": "^2.13.4"
   },
   "devDependencies": {
+    "etcd-flatten": "0.0.2",
     "etcdjs": "^1.1.1"
   }
 }

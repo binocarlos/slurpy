@@ -2,6 +2,7 @@ var tape = require('tape')
 var etcdjs = require('etcdjs')
 var flatten = require('etcd-flatten')
 var cp = require('child_process')
+var path = require('path')
 
 var etcdAddress = process.env.ETCD_ADDRESS || '127.0.0.1:4001'
 
