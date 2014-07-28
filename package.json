@@ -1,0 +1,32 @@
+{
+  "name": "slurpy",
+  "version": "0.0.0",
+  "description": "Replicate local files matching a glob into etcd",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/binocarlos/slurpy.git"
+  },
+  "keywords": [
+    "etcd",
+    "fs",
+    "file",
+    "copy"
+  ],
+  "author": "Kai Davenport",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/binocarlos/slurpy/issues"
+  },
+  "homepage": "https://github.com/binocarlos/slurpy",
+  "dependencies": {
+    "minimist": "^0.2.0",
+    "tape": "^2.13.4"
+  },
+  "devDependencies": {
+    "etcdjs": "^1.1.1"
+  }
+}
