@@ -12,9 +12,10 @@ var args = require('minimist')(process.argv, {
 })
 var async = require('async')
 var globby = require('globby')
+var etcdjs = require('etcdjs')
+var fs = require('fs')
+var path = require('path')
 var resolve = require('cli-path-resolve')
-
-
 
 function checkArg(name){
   if(!args[name]){
@@ -27,9 +28,12 @@ checkArg('folder')
 checkArg('key')
 
 var folderpath = resolve(args.folder)
+var key = args.key.replace(/\/$/, '') + '/'
+var etcd = etcdjs(args.etcd)
 
 function push(){
-	var globs = args.glob.split(',') || '**/*.*'
+
+	var globs = (args.glob || '**/*.*').split(',')
 
 	globby(globs, {
 		cwd:folderpath
@@ -39,15 +43,19 @@ function push(){
 
 		async.forEachSeries(files, function(file, nextFile){
 
-			console.log(file)
-			nextFile()
+			fs.readFile(path.join(folderpath, file), 'utf8', function(err, content){
+				if(err) return nextFile(err)
+				console.log('push: ' + file)
+				fileCount++
+				etcd.set(key + file, content, nextFile)
+			})
 
 		}, function(err){
 			if(err){
 				console.error(err)
 				process.exit(1)
 			}
-			console.log(fileCount + ' files pushed to ' + args.etcd)
+			console.log('done: ' + fileCount + ' files pushed to ' + args.etcd)
 		})
 
 	})
