@@ -1,6 +1,6 @@
 {
   "name": "slurpy",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Replicate local files matching a glob into etcd",
   "main": "index.js",
   "scripts": {
