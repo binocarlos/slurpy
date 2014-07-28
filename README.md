@@ -11,6 +11,10 @@ $ npm install slurpy -g
 
 or if you can [install docker](https://github.com/binocarlos/docker-install) to use the docker image
 
+```bash
+$ docker pull binocarlos/slurpy
+```
+
 ## usage
 
 slurpy will copy matching files into etcd keys matching the filepath.
